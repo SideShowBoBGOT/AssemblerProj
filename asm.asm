@@ -1,54 +1,57 @@
-.model tiny, c
-.data
-vec3d struct
-fx      real4   0
-fy      real4   0
-fz      real4   0
-Pad8    byte    0
-vec3d ends
-cube    real4  0.0, 0.0, 0.0;    SOUTH:  A1B1D1  A1
-        real4  0.0, 1.0, 0.0;                    B1
-        real4  1.0, 0.0, 0.0;                    D1
-        real4  0.0, 1.0, 0.0;    SOUTH:  B1C1D1  B1
-        real4  1.0, 1.0, 0.0;                    C1
-        real4  1.0, 0.0, 0.0;                    D1
-        real4  0.0, 0.0, 1.0;    NORTH:  A2B2D2  A2
-        real4  0.0, 1.0, 1.0;                    B2
-        real4  1.0, 0.0, 1.0;                    D2
-        real4  0.0, 1.0, 1.0;    NORTH:  B2C2D2  B2
-        real4  1.0, 1.0, 1.0;                    C2
-        real4  1.0, 0.0, 1.0;                    D2
-        real4  1.0, 0.0, 0.0;    EAST:   D1C1D2  D1
-        real4  1.0, 1.0, 0.0;                    C1
-        real4  1.0, 0.0, 1.0;                    D2
-        real4  1.0, 1.0, 0.0;    EAST:   C1C2D2  C1
-        real4  1.0, 1.0, 1.0;                    C2
-        real4  1.0, 0.0, 1.0;                    D2
-        real4  0.0, 0.0, 0.0;    WEST:   A1B1A2  A1
-        real4  0.0, 1.0, 0.0;                    B1
-        real4  0.0, 0.0, 1.0;                    A2
-        real4  0.0, 1.0, 0.0;    WEST:   B1B2A2  B1
-        real4  0.0, 1.0, 1.0;                    B2
-        real4  0.0, 0.0, 1.0;                    A2
-        real4  1.0, 1.0, 0.0;    TOP:    C1B1B2  C1
-        real4  0.0, 1.0, 0.0;                    B1
-        real4  0.0, 1.0, 1.0;                    B2
-        real4  1.0, 1.0, 0.0;    TOP:    C1B2C2  C1
-        real4  0.0, 1.0, 1.0;                    B2
-        real4  1.0, 1.0, 1.0;                    C2
-        real4  1.0, 0.0, 0.0;    BOTTOM: D1A1A2  D1
-        real4  0.0, 0.0, 0.0;                    A1
-        real4  0.0, 0.0, 1.0;                    A2
-        real4  1.0, 0.0, 0.0;    BOTTOM: D1A2D2  D1
-        real4  0.0, 0.0, 1.0;                    A2
-        real4  1.0, 0.0, 1.0;                    D2
+    .386
+    .model flat, c
+    .data
+angle               dw      360
+ScreenWidth         dw      320
+ScreenHeight        dw      240
+fNear               real4   0.1
+fFar                real4   1000.0
+fFov                real4   90.0f
+fAspectRatio        real4   ?
+fFovRad             real4   ?
+matp    real4   16      DUP(0.0)
 .code 
-foo proc 
-	
+InitfFovRad proc
+    fld [fFov]; res = fFov
+    fidiv [angle]; res = fFov / 360
+    fstp st(1)
+    fldpi
+    fmul st(0), st(1); res = res * pi
+    fstp st(1)
+    fptan; res = tan(res)
+    fdiv st(0), st(1); st(0) = 1.0/res
+    fstp st(0)
     ret
-foo  endp 
+InitfFovRad endp
 
-ClearConsole  proc 
-    
-ClearConsole endp 
-end
+InitfAspectratio proc
+    fild [ScreenWidth]
+    fild [ScreenHeight]
+    fdiv st(0), st(1)
+    fstp st(1)
+    ret
+InitfAspectratio endp
+
+InitProjectionMatrix proc
+    push eax
+    push ebx
+    push ecx
+    push edx
+    fld [fAspectRatio]
+    fld [ffovRad]
+    fmul st(0), st(1)
+    fstp matp 
+    mov [matp+4*8+8], ebx 
+    pop edx
+    pop ecx
+    pop ebx
+    pop eax
+    ret
+InitProjectionMatrix endp
+mainfunc proc
+    call InitfFovRad
+    call InitfAspectratio
+    call InitProjectionMatrix
+mainfunc endp
+
+END
