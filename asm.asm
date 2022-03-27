@@ -21,6 +21,7 @@ InitfFovRad proc
     fptan; res = tan(res)
     fdiv st(0), st(1); st(0) = 1.0/res
     fstp st(0)
+    fstp [fFovRad]
     ret
 InitfFovRad endp
 
@@ -29,29 +30,49 @@ InitfAspectratio proc
     fild [ScreenHeight]
     fdiv st(0), st(1)
     fstp st(1)
+    fstp [fAspectratio]
     ret
 InitfAspectratio endp
 
 InitProjectionMatrix proc
-    push eax
-    push ebx
-    push ecx
-    push edx
+    ;matp[0][0] = fAspectratio * fFovRad
     fld [fAspectRatio]
-    fld [ffovRad]
+    fld [fFovRad]
     fmul st(0), st(1)
+    fstp st(1)
     fstp matp 
-    mov [matp+4*8+8], ebx 
-    pop edx
-    pop ecx
-    pop ebx
-    pop eax
+    ;matp[1][1] = fFovRad
+    fld [fFovRad]
+    fstp [matp+4*8+8]
+    ;matp[2][2] = fFar / (ffar - fNear)
+    fld [fFar]
+    fld [fFar]
+    fld [fNear]
+    fsub st(1), st(2)
+    fdiv st(0), st(1)
+    fstp [mat+8*8+16]
+    fstp st(0)
+    fstp st(0)
+    ;matp[3][2] = (fFar * fNear) / (fNear - fFar)
+    fld [fFar]
+    fld [fNear]
+    fld [fFar]
+    fmul st(0), st(1)
+    fsub st(1), st(2)
+    fdiv st(0), st(1)
+    fstp [mat+12*8+16]
+    fstp st(0)
+    fstp st(0)
+    ;matp[2][3] = 1.0f
+    fld1
+    fstp [matp+8*8+24] 
     ret
 InitProjectionMatrix endp
 mainfunc proc
     call InitfFovRad
     call InitfAspectratio
     call InitProjectionMatrix
+    ret
 mainfunc endp
 
 END
