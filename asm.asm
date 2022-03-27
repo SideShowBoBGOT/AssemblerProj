@@ -1,5 +1,11 @@
 .model tiny, c
 .data
+vec3d struct
+fx      real4   0
+fy      real4   0
+fz      real4   0
+Pad8    byte    0
+vec3d ends
 cube    real4  0.0, 0.0, 0.0;    SOUTH:  A1B1D1  A1
         real4  0.0, 1.0, 0.0;                    B1
         real4  1.0, 0.0, 0.0;                    D1
