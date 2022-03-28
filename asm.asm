@@ -1,5 +1,15 @@
     .386
     .model flat, c
+vec3d struct
+i   real4   0.0
+j   real4   0.0
+k   real4   0.0
+vec3d ends
+
+triangle struct
+poins   vec3d   3   DUP(0.0)
+triangle ends
+
     .data
 angle               dw      360
 ScreenWidth         dw      320
@@ -10,6 +20,9 @@ fFov                real4   90.0f
 fAspectRatio        real4   ?
 fFovRad             real4   ?
 matp    real4   16      DUP(0.0)
+point   vec3d   <0.0,0.0,0.0>
+
+
 .code 
 InitfFovRad proc
     fld [fFov]; res = fFov
@@ -24,7 +37,6 @@ InitfFovRad proc
     fstp [fFovRad]
     ret
 InitfFovRad endp
-
 InitfAspectratio proc
     fild [ScreenWidth]
     fild [ScreenHeight]
@@ -33,7 +45,6 @@ InitfAspectratio proc
     fstp [fAspectratio]
     ret
 InitfAspectratio endp
-
 InitProjectionMatrix proc
     ;matp[0][0] = fAspectratio * fFovRad
     fld [fAspectRatio]
@@ -71,10 +82,14 @@ InitProjectionMatrix proc
     fstp [matp+8*8+24] 
     ret
 InitProjectionMatrix endp
+MultiplyMatrixVector proc
+    
+MultiplyMatrixVector endp
 mainfunc proc
     call InitfFovRad
     call InitfAspectratio
     call InitProjectionMatrix
+    
     ret
 mainfunc endp
 
