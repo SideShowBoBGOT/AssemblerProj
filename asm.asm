@@ -44,23 +44,26 @@ InitProjectionMatrix proc
     ;matp[1][1] = fFovRad
     fld [fFovRad]
     fstp [matp+4*8+8]
-    ;matp[2][2] = fFar / (ffar - fNear)
-    fld [fFar]
+    ;matp[2][2] = fFar / (fFar - fNear)
     fld [fFar]
     fld [fNear]
-    fsub st(1), st(2)
-    fdiv st(0), st(1)
-    fstp [mat+8*8+16]
+    fld [fFar]
+    fsub st(0), st(1)
+    fdiv st(2), st(0)
     fstp st(0)
     fstp st(0)
+    fstp [matp+8*8+16]
     ;matp[3][2] = (fFar * fNear) / (fNear - fFar)
-    fld [fFar]
     fld [fNear]
     fld [fFar]
-    fmul st(0), st(1)
-    fsub st(1), st(2)
+    fld [fNear]
+    fsub st(0), st(1)
+    fld1
     fdiv st(0), st(1)
-    fstp [mat+12*8+16]
+    fmul st(0), st(2)
+    fmul st(0), st(3)
+    fstp [matp+12*8+16]
+    fstp st(0)
     fstp st(0)
     fstp st(0)
     ;matp[2][3] = 1.0f
