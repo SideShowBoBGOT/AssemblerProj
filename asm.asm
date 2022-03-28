@@ -1,29 +1,44 @@
     .386
     .model flat, c
-vec3d struct
+    .data
+;Point Structure:    SIZE    36  bytes
+point struct
 i   real4   0.0
 j   real4   0.0
 k   real4   0.0
-vec3d ends
+point ends
 
+;triangle< Structure:    SIZE    36  bytes
 triangle struct
-poins   vec3d   3   DUP(0.0)
+point1   point  <0.0,0.0,0.0>
+point2   point  <0.0,0.0,0.0>
+point3   point  <0.0,0.0,0.0>
 triangle ends
 
-    .data
-angle               dw      360
-ScreenWidth         dw      320
-ScreenHeight        dw      240
-fNear               real4   0.1
-fFar                real4   1000.0
-fFov                real4   90.0f
-fAspectRatio        real4   ?
-fFovRad             real4   ?
-matp    real4   16      DUP(0.0)
-point   vec3d   <0.0,0.0,0.0>
+angle               dw                  360
+ScreenWitriangleh         dw                  320
+ScreenHeight        dw                  240
+fNear               real4               0.1
+fFar                real4               1000.0
+fFov                real4               90.0f
+fAspectRatio        real4               ?
+fFovRad             real4               ?
+matp                real4       16      DUP(0.0)
+cube                triangle   <<0.0, 0.0, 0.0>, <0.0, 1.0, 0.0>, <1.0, 0.0, 0.0>>;    SOUTH:  A1B1D1
+                    triangle   <<0.0, 1.0, 0.0>, <1.0, 1.0, 0.0>, <1.0, 0.0, 0.0>>;    SOUTH:  B1C1D1
+                    triangle   <<0.0, 0.0, 1.0>, <0.0, 1.0, 1.0>, <1.0, 0.0, 1.0>>;    NORTH:  A2B2D2
+                    triangle   <<0.0, 1.0, 1.0>, <1.0, 1.0, 1.0>, <1.0, 0.0, 1.0>>;    NORTH:  B2C2D2
+                    triangle   <<1.0, 0.0, 0.0>, <1.0, 1.0, 0.0>, <1.0, 0.0, 1.0>>;    EAST:   D1C1D2
+                    triangle   <<1.0, 1.0, 0.0>, <1.0, 1.0, 1.0>, <1.0, 0.0, 1.0>>;    EAST:   C1C2D2
+                    triangle   <<0.0, 0.0, 0.0>, <0.0, 1.0, 0.0>, <0.0, 0.0, 1.0>>;    WEST:   A1B1A2
+                    triangle   <<0.0, 1.0, 0.0>, <0.0, 1.0, 1.0>, <0.0, 0.0, 1.0>>;    WEST:   B1B2A2
+                    triangle   <<1.0, 1.0, 0.0>, <0.0, 1.0, 0.0>, <0.0, 1.0, 1.0>>;    TOP:    C1B1B2
+                    triangle   <<1.0, 1.0, 0.0>, <0.0, 1.0, 1.0>, <1.0, 1.0, 1.0>>;    TOP:    C1B2C2
+                    triangle   <<1.0, 0.0, 0.0>, <0.0, 0.0, 0.0>, <0.0, 0.0, 1.0>>;    BOTTOM: D1A1A2
+                    triangle   <<1.0, 0.0, 0.0>, <0.0, 0.0, 1.0>, <1.0, 0.0, 1.0>>;    BOTTOM: D1A2D2
+p   point   <1.0, 2.0, 3.0>
 
-
-.code 
+    .code 
 InitfFovRad proc
     fld [fFov]; res = fFov
     fidiv [angle]; res = fFov / 360
@@ -38,7 +53,7 @@ InitfFovRad proc
     ret
 InitfFovRad endp
 InitfAspectratio proc
-    fild [ScreenWidth]
+    fild [ScreenWitriangleh]
     fild [ScreenHeight]
     fdiv st(0), st(1)
     fstp st(1)
@@ -89,7 +104,9 @@ mainfunc proc
     call InitfFovRad
     call InitfAspectratio
     call InitProjectionMatrix
-    
+    fld [fFar]
+    fstp real4 ptr [p+4]
+    mov eax, offset p
     ret
 mainfunc endp
 
