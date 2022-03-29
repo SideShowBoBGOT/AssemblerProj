@@ -1,5 +1,6 @@
     .386
     .model flat, c
+    .stack 1048576
     .data
 ;Point Structure:    SIZE    36  bytes
 point struct
@@ -40,7 +41,6 @@ cube                triangle    <<0.0, 0.0, 0.0>, <0.0, 1.0, 0.0>, <1.0, 0.0, 0.
                     triangle    <<1.0, 0.0, 0.0>, <0.0, 0.0, 0.0>, <0.0, 0.0, 1.0>>;    BOTTOM: D1A1A2
                     triangle    <<1.0, 0.0, 0.0>, <0.0, 0.0, 1.0>, <1.0, 0.0, 1.0>>;    BOTTOM: D1A2D2
 p   point   <1.0, 2.0, 3.0>
-
     .code 
 InitfFovRad proc
     fld [fFov]; res = fFov
@@ -146,7 +146,9 @@ MultiplyMatrixVector proc
     fld1
     fld1
     fsub st(0), st(1)
-    fcompp st(0), [w]
+    fstp st(1)
+    fld [w]
+    fcompp
 
     jnz @F
     fld [w]
